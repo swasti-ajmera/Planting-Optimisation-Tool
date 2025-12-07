@@ -1,3 +1,1 @@
-import "./style.css";
-
-export { sum } from "./sum";
+import { registerUser, login, getCurrentUser, callProtected } from "./authTest";
