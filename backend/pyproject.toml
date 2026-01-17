@@ -1,7 +1,7 @@
 [project]
 name = "backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "POT Backend API with PostgreSQL"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -10,9 +10,9 @@ dependencies = [
     "pytest-cov>=7.0.0",
     "pytest-mock>=3.15.1",
     "ruff>=0.14.5",
-    "supabase>=2.10.0",
+    "sqlalchemy>=2.0.23",
+    "psycopg2-binary>=2.9.9",
     "python-jose[cryptography]>=3.3.0",
-    "passlib[bcrypt]>=1.7.4",
     "python-multipart>=0.0.6",
     "pydantic[email]>=2.5.0",
     "python-dotenv>=1.0.0",
