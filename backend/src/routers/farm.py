@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.schemas.farm import FarmCreate, FarmRead
-from src.schemas.user import UserRead
-from src.dependencies import CurrentActiveUser
+from src import schemas
+from src.domains.authentication import Role, require_role_async
 from src.database import get_db_session
 
 from src.services import farm as farm_service
@@ -23,7 +23,7 @@ async def create_farm_endpoint(
     # Validates the data against the pydantic model
     farm_data: FarmCreate,
     # Inject the authenticated user
-    current_user: UserRead = CurrentActiveUser,
+    current_user: schemas.UserRead = Depends(require_role_async(Role.SUPERVISOR)),
     # Inject the real database session
     db: AsyncSession = Depends(get_db_session),
 ):
@@ -47,7 +47,7 @@ async def read_farm_endpoint(
     farm_id: int,
     db: AsyncSession = Depends(get_db_session),
     # Assuming CurrentActiveUser is configured to return the User ORM object (src.models.user.User)
-    current_user: User = CurrentActiveUser,
+    current_user: schemas.UserRead = Depends(require_role_async(Role.OFFICER)),
 ):
     """
     Retrieves one or many farms by ID, ensuring the requesting user is the owner.

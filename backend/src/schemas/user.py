@@ -15,12 +15,14 @@ class UserCreate(UserBase):
         min_length=8,
         description="The user's password (must be hashed before storage).",
     )
+    role: str = "officer"
 
 
 # This is what is returned after registration or when fetching the current user.
 # NEVER INCLUDE PASSWORD
 class UserRead(UserBase):
     id: int = Field(..., description="The unique database ID of the user.")
+    role: str = Field(..., description="The user's role.")
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -41,3 +43,4 @@ class TokenData(BaseModel):
     """Schema for the JWT payload validation."""
 
     id: Optional[int] = None  # The user ID stored in the token's subject (sub) field
+    role: Optional[str] = None
