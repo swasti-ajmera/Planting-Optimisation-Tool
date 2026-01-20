@@ -8,7 +8,6 @@ from src.database import get_db_session
 
 from src.services import farm as farm_service
 from src.services.farm import get_farm_by_id
-from src.models.user import User
 
 # The router instance
 router = APIRouter(prefix="/farms", tags=["Farms"])
