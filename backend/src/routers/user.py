@@ -16,7 +16,9 @@ from ..models import User
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.post("/", response_model=schemas.user.UserRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/", response_model=schemas.user.UserRead, status_code=status.HTTP_201_CREATED
+)
 async def create_user(
     user: schemas.user.UserCreate,
     db: AsyncSession = Depends(get_db_session),
