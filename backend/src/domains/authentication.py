@@ -1,19 +1,11 @@
 from datetime import datetime, timedelta
-from typing import Optional, List
-
-import jwt
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from datetime import datetime, timedelta
-from typing import Optional, List
-
+from typing import Optional
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-
 from .. import models, schemas
 from ..config import settings
 from ..database import get_db_session
@@ -133,7 +125,6 @@ async def require_role_async(required_role: Role):
     return role_checker
 
 
-from ..models.audit_log import AuditLog
 
 
 async def log_audit_event(
