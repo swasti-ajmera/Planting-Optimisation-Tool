@@ -20,9 +20,12 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/token", response_model=schemas.Token)
 async def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db_session)
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db_session),
 ):
-    user = await authenticate_user(db, email=form_data.username, password=form_data.password)
+    user = await authenticate_user(
+        db, email=form_data.username, password=form_data.password
+    )
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -34,7 +37,9 @@ async def login_for_access_token(
 
 
 @router.post("/register", response_model=schemas.UserRead)
-async def register_user(user: schemas.UserCreate, db: AsyncSession = Depends(get_db_session)):
+async def register_user(
+    user: schemas.UserCreate, db: AsyncSession = Depends(get_db_session)
+):
     result = await db.execute(select(User).filter(User.email == user.email))
     db_user = result.scalar_one_or_none()
     if db_user:

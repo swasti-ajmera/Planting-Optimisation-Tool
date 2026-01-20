@@ -21,7 +21,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     hashed_password: Mapped[str] = mapped_column(String(255))
-    role: Mapped[str] = mapped_column(String(50), index=True, default='officer')
+    role: Mapped[str] = mapped_column(String(50), index=True, default="officer")
 
     # Relates a farm back to the user responsible for it.
     farms: Mapped[List["Farm"]] = relationship(back_populates="farm_supervisor")

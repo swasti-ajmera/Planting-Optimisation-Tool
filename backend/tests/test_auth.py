@@ -31,9 +31,7 @@ async def test_register_user(async_client: AsyncClient, async_session: AsyncSess
     assert db_user is not None
 
 
-async def test_login_for_access_token(
-    async_client: AsyncClient, test_admin_user: User
-):
+async def test_login_for_access_token(async_client: AsyncClient, test_admin_user: User):
     response = await async_client.post(
         "/auth/token",
         data={"username": "admin@test.com", "password": "adminpassword"},

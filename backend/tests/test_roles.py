@@ -45,9 +45,7 @@ async def test_read_users_by_supervisor(
     assert response.status_code == 200
 
 
-async def test_read_users_by_admin(
-    async_client: AsyncClient, admin_auth_headers: dict
-):
+async def test_read_users_by_admin(async_client: AsyncClient, admin_auth_headers: dict):
     response = await async_client.get("/users/", headers=admin_auth_headers)
     assert response.status_code == 200
 

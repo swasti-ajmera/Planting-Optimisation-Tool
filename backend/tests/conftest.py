@@ -144,18 +144,23 @@ async def setup_soil_texture(async_session: AsyncSession):
 # Authorization Header Fixtures
 @pytest.fixture(scope="function")
 def admin_auth_headers(test_admin_user: User) -> dict:
-    access_token = create_access_token(data={"sub": str(test_admin_user.id), "role": test_admin_user.role})
+    access_token = create_access_token(
+        data={"sub": str(test_admin_user.id), "role": test_admin_user.role}
+    )
     return {"Authorization": f"Bearer {access_token}"}
 
 
 @pytest.fixture(scope="function")
 def supervisor_auth_headers(test_supervisor_user: User) -> dict:
-    access_token = create_access_token(data={"sub": str(test_supervisor_user.id), "role": test_supervisor_user.role})
+    access_token = create_access_token(
+        data={"sub": str(test_supervisor_user.id), "role": test_supervisor_user.role}
+    )
     return {"Authorization": f"Bearer {access_token}"}
 
 
 @pytest.fixture(scope="function")
 def officer_auth_headers(test_officer_user: User) -> dict:
-    access_token = create_access_token(data={"sub": str(test_officer_user.id), "role": test_officer_user.role})
+    access_token = create_access_token(
+        data={"sub": str(test_officer_user.id), "role": test_officer_user.role}
+    )
     return {"Authorization": f"Bearer {access_token}"}
-
