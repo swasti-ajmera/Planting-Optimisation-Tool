@@ -16,9 +16,9 @@ from ..models import User
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.post("/", response_model=schemas.UserRead, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=schemas.user.UserRead, status_code=status.HTTP_201_CREATED)
 async def create_user(
-    user: schemas.UserCreate,
+    user: schemas.user.UserCreate,
     db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(require_role(Role.ADMIN)),
 ):
@@ -48,7 +48,7 @@ async def create_user(
     return db_user
 
 
-@router.get("/", response_model=List[schemas.UserRead])
+@router.get("/", response_model=List[schemas.user.UserRead])
 async def read_users(
     skip: int = 0,
     limit: int = 100,
@@ -60,7 +60,7 @@ async def read_users(
     return users
 
 
-@router.get("/{user_id}", response_model=schemas.UserRead)
+@router.get("/{user_id}", response_model=schemas.user.UserRead)
 async def read_user(
     user_id: int,
     db: AsyncSession = Depends(get_db_session),
@@ -75,10 +75,10 @@ async def read_user(
     return db_user
 
 
-@router.put("/{user_id}", response_model=schemas.UserRead)
+@router.put("/{user_id}", response_model=schemas.user.UserRead)
 async def update_user(
     user_id: int,
-    user: schemas.UserCreate,
+    user: schemas.user.UserCreate,
     db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(require_role(Role.ADMIN)),
 ):

@@ -18,7 +18,7 @@ from ..models import User
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@router.post("/token", response_model=schemas.Token)
+@router.post("/token", response_model=schemas.user.Token)
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db_session),
@@ -36,9 +36,9 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.post("/register", response_model=schemas.UserRead)
+@router.post("/register", response_model=schemas.user.UserRead)
 async def register_user(
-    user: schemas.UserCreate, db: AsyncSession = Depends(get_db_session)
+    user: schemas.user.UserCreate, db: AsyncSession = Depends(get_db_session)
 ):
     result = await db.execute(select(User).filter(User.email == user.email))
     db_user = result.scalar_one_or_none()
@@ -60,7 +60,7 @@ async def register_user(
     return db_user
 
 
-@router.get("/users/me", response_model=schemas.UserRead)
+@router.get("/users/me", response_model=schemas.user.UserRead)
 async def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
 

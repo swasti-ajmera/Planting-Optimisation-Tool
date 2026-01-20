@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import get_db_session
-from src.domains.authentication import require_role_async, Role
+from src.domains.authentication import require_role, Role
 from src.models.species import Species
 from src import schemas
 
@@ -14,7 +14,7 @@ router = APIRouter()
 async def read_species(
     species_id: int,
     db: AsyncSession = Depends(get_db_session),
-    current_user: schemas.UserRead = Depends(require_role_async(Role.OFFICER)),
+    current_user: schemas.user.UserRead = Depends(require_role(Role.OFFICER)),
 ):
     result = await db.execute(
         select(Species)
