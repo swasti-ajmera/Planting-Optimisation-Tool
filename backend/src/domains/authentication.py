@@ -4,12 +4,19 @@ from typing import Optional, List
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from datetime import datetime, timedelta
+from typing import Optional, List
+
+import jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from .. import models, schemas
 from ..config import settings
-from ..database import get_db
+from ..database import get_db_session
 from ..dependencies import get_current_active_user
 from ..models.audit_log import AuditLog
 import enum
@@ -49,16 +56,17 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-def authenticate_user(db: Session, email: str, password: str) -> Optional[models.User]:
+async def authenticate_user(db: AsyncSession, email: str, password: str) -> Optional[models.User]:
     """Authenticates a user by email and password."""
-    user = db.query(models.User).filter(models.User.email == email).first()
+    result = await db.execute(select(models.User).filter(models.User.email == email))
+    user = result.scalar_one_or_none()
     if not user:
         return None
     if not verify_password(password, user.hashed_password):
         return None
     return user
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> models.User:
+async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db_session)) -> models.User:
     """Dependency to get the current user from a JWT token."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -73,7 +81,10 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         token_data = schemas.TokenData(id=user_id)
     except jwt.PyJWTError:
         raise credentials_exception
-    user = db.query(models.User).filter(models.User.id == token_data.id).first()
+    
+    result = await db.execute(select(models.User).filter(models.User.id == token_data.id))
+    user = result.scalar_one_or_none()
+    
     if user is None:
         raise credentials_exception
     return user
@@ -125,8 +136,8 @@ async def require_role_async(required_role: Role):
 from ..models.audit_log import AuditLog
 
 
-def log_audit_event(
-    db: Session,
+async def log_audit_event(
+    db: AsyncSession,
     user_id: int,
     event_type: str,
     details: str,
@@ -136,4 +147,5 @@ def log_audit_event(
     """
     db_log = AuditLog(user_id=user_id, event_type=event_type, details=details)
     db.add(db_log)
-    db.commit()
+    await db.commit()
+

@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from typing import List
 
 from .. import schemas
-from ..database import get_db
+from ..database import get_db_session
 from ..domains.authentication import (
     Role,
     require_role,
@@ -16,12 +17,13 @@ router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.post("/", response_model=schemas.UserRead, status_code=status.HTTP_201_CREATED)
-def create_user(
+async def create_user(
     user: schemas.UserCreate,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(require_role(Role.ADMIN)),
 ):
-    db_user = db.query(User).filter(User.email == user.email).first()
+    result = await db.execute(select(User).filter(User.email == user.email))
+    db_user = result.scalar_one_or_none()
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -35,9 +37,9 @@ def create_user(
         role=user.role,
     )
     db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    log_audit_event(
+    await db.commit()
+    await db.refresh(db_user)
+    await log_audit_event(
         db=db,
         user_id=current_user.id,
         event_type="user_create",
@@ -47,23 +49,25 @@ def create_user(
 
 
 @router.get("/", response_model=List[schemas.UserRead])
-def read_users(
+async def read_users(
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(require_role(Role.SUPERVISOR)),
 ):
-    users = db.query(User).offset(skip).limit(limit).all()
+    result = await db.execute(select(User).offset(skip).limit(limit))
+    users = result.scalars().all()
     return users
 
 
 @router.get("/{user_id}", response_model=schemas.UserRead)
-def read_user(
+async def read_user(
     user_id: int,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(require_role(Role.SUPERVISOR)),
 ):
-    db_user = db.query(User).filter(User.id == user_id).first()
+    result = await db.execute(select(User).filter(User.id == user_id))
+    db_user = result.scalar_one_or_none()
     if db_user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
@@ -72,13 +76,14 @@ def read_user(
 
 
 @router.put("/{user_id}", response_model=schemas.UserRead)
-def update_user(
+async def update_user(
     user_id: int,
     user: schemas.UserCreate,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(require_role(Role.ADMIN)),
 ):
-    db_user = db.query(User).filter(User.id == user_id).first()
+    result = await db.execute(select(User).filter(User.id == user_id))
+    db_user = result.scalar_one_or_none()
     if db_user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
@@ -88,22 +93,23 @@ def update_user(
     if user.password:
         db_user.hashed_password = get_password_hash(user.password)
     db_user.role = user.role
-    db.commit()
-    db.refresh(db_user)
+    await db.commit()
+    await db.refresh(db_user)
     return db_user
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(
+async def delete_user(
     user_id: int,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(require_role(Role.ADMIN)),
 ):
-    db_user = db.query(User).filter(User.id == user_id).first()
+    result = await db.execute(select(User).filter(User.id == user_id))
+    db_user = result.scalar_one_or_none()
     if db_user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
-    db.delete(db_user)
-    db.commit()
+    await db.delete(db_user)
+    await db.commit()
     return
