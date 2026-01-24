@@ -41,21 +41,27 @@ async def test_create_user_by_supervisor_fail(
 async def test_read_users_by_supervisor(
     async_client: AsyncClient, test_supervisor_user, supervisor_auth_headers: dict
 ):
-    response = await async_client.get("/users/", headers=supervisor_auth_headers)  # Added trailing slash
+    response = await async_client.get(
+        "/users/", headers=supervisor_auth_headers
+    )  # Added trailing slash
     assert response.status_code == 200
 
 
 async def test_read_users_by_admin(
     async_client: AsyncClient, test_admin_user, admin_auth_headers: dict
 ):
-    response = await async_client.get("/users/", headers=admin_auth_headers)  # Added trailing slash
+    response = await async_client.get(
+        "/users/", headers=admin_auth_headers
+    )  # Added trailing slash
     assert response.status_code == 200
 
 
 async def test_read_users_by_officer_fail(
     async_client: AsyncClient, test_officer_user, officer_auth_headers: dict
 ):
-    response = await async_client.get("/users/", headers=officer_auth_headers)  # Added trailing slash
+    response = await async_client.get(
+        "/users/", headers=officer_auth_headers
+    )  # Added trailing slash
     assert response.status_code == 403
 
 
@@ -63,5 +69,7 @@ async def test_read_users_by_officer_fail(
 async def test_admin_can_access_supervisor_endpoint(
     async_client: AsyncClient, test_admin_user, admin_auth_headers: dict
 ):
-    response = await async_client.get("/users/", headers=admin_auth_headers)  # Added trailing slash
+    response = await async_client.get(
+        "/users/", headers=admin_auth_headers
+    )  # Added trailing slash
     assert response.status_code == 200

@@ -3,8 +3,6 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.farm import Farm
 from src.models.user import User
-from src.main import app
-from src.database import get_db_session
 from src.domains.authentication import get_password_hash, Role
 from src.dependencies import create_access_token
 
@@ -28,12 +26,12 @@ async def test_read_farm_success_and_authorization_check(
         hashed_password=get_password_hash("passwordb"),
         role=Role.OFFICER.value,
     )
-    
+
     async_session.add_all([user_a, user_b])
     await async_session.flush()
     await async_session.refresh(user_a)
     await async_session.refresh(user_b)
-    
+
     # Create auth headers for user_a
     access_token = create_access_token(
         data={"sub": str(user_a.id), "role": user_a.role}

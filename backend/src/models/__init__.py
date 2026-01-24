@@ -11,7 +11,6 @@ from .recommendations import Recommendation
 from .audit_log import AuditLog
 
 
-
 __all__ = [
     "SoilTexture",
     "AgroforestryType",

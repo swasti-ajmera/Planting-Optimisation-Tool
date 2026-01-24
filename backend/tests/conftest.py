@@ -143,7 +143,7 @@ async def setup_soil_texture(async_session: AsyncSession):
     for texture in textures:
         merged_texture = await async_session.merge(texture)
         async_session.add(merged_texture)
-    
+
     await async_session.flush()
     return textures
 

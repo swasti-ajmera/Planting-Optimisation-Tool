@@ -23,7 +23,7 @@ async def test_farm_and_boundary_link(
     async_session.add(test_user)
     await async_session.flush()
     await async_session.refresh(test_user)
-    
+
     access_token = create_access_token(
         data={"sub": str(test_user.id), "role": test_user.role}
     )
