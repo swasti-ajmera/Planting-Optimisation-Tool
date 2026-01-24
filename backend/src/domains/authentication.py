@@ -6,11 +6,12 @@ from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from .. import models, schemas
-from ..config import settings
-from ..database import get_db_session
-from ..dependencies import get_current_active_user
-from ..models.audit_log import AuditLog
+from src.config import settings
+from src.database import get_db_session
+from src.dependencies import get_current_active_user
+from src.models.audit_log import AuditLog
+from src.models.user import User
+from src.schemas.user import TokenData, UserRead
 import enum
 
 
@@ -56,9 +57,9 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 async def authenticate_user(
     db: AsyncSession, email: str, password: str
-) -> Optional[models.User]:
+) -> Optional[User]:
     """Authenticates a user by email and password."""
-    result = await db.execute(select(models.User).filter(models.User.email == email))
+    result = await db.execute(select(User).filter(User.email == email))
     user = result.scalar_one_or_none()
     if not user:
         return None
@@ -69,7 +70,7 @@ async def authenticate_user(
 
 async def get_current_user(
     token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db_session)
-) -> models.User:
+) -> User:
     """Dependency to get the current user from a JWT token."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -83,13 +84,11 @@ async def get_current_user(
         user_id: int = payload.get("sub")
         if user_id is None:
             raise credentials_exception
-        token_data = schemas.TokenData(id=user_id)
+        token_data = TokenData(id=user_id)
     except jwt.PyJWTError:
         raise credentials_exception
 
-    result = await db.execute(
-        select(models.User).filter(models.User.id == token_data.id)
-    )
+    result = await db.execute(select(User).filter(User.id == token_data.id))
     user = result.scalar_one_or_none()
 
     if user is None:
@@ -108,8 +107,8 @@ def require_role(required_role: Role):
     """Dependency to require a specific user role."""
 
     def role_checker(
-        current_user: models.User = Depends(get_current_user),
-    ) -> models.User:
+        current_user: User = Depends(get_current_user),
+    ) -> User:
         """Checks if the current user has the required role."""
         user_role_level = role_hierarchy.get(current_user.role, 0)
         required_role_level = role_hierarchy.get(required_role.value, 0)
@@ -128,8 +127,8 @@ async def require_role_async(required_role: Role):
     """Async dependency to require a specific user role."""
 
     async def role_checker(
-        current_user: schemas.UserRead = Depends(get_current_active_user),
-    ) -> schemas.UserRead:
+        current_user: UserRead = Depends(get_current_active_user),
+    ) -> UserRead:
         """Checks if the current user has the required role."""
         user_role_level = role_hierarchy.get(current_user.role, 0)
         required_role_level = role_hierarchy.get(required_role.value, 0)

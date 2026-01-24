@@ -3,24 +3,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import List
 
-from .. import schemas
-from ..database import get_db_session
-from ..domains.authentication import (
+from src.database import get_db_session
+from src.domains.authentication import (
     Role,
     require_role,
     get_password_hash,
     log_audit_event,
 )
-from ..models import User
+from src.models.user import User
+from src.schemas.user import UserCreate, UserRead
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.post(
-    "/", response_model=schemas.user.UserRead, status_code=status.HTTP_201_CREATED
-)
+@router.post("/", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 async def create_user(
-    user: schemas.user.UserCreate,
+    user: UserCreate,
     db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(require_role(Role.ADMIN)),
 ):
@@ -50,7 +48,7 @@ async def create_user(
     return db_user
 
 
-@router.get("/", response_model=List[schemas.user.UserRead])
+@router.get("/", response_model=List[UserRead])
 async def read_users(
     skip: int = 0,
     limit: int = 100,
@@ -62,7 +60,7 @@ async def read_users(
     return users
 
 
-@router.get("/{user_id}", response_model=schemas.user.UserRead)
+@router.get("/{user_id}", response_model=UserRead)
 async def read_user(
     user_id: int,
     db: AsyncSession = Depends(get_db_session),
@@ -77,10 +75,10 @@ async def read_user(
     return db_user
 
 
-@router.put("/{user_id}", response_model=schemas.user.UserRead)
+@router.put("/{user_id}", response_model=UserRead)
 async def update_user(
     user_id: int,
-    user: schemas.user.UserCreate,
+    user: UserCreate,
     db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(require_role(Role.ADMIN)),
 ):

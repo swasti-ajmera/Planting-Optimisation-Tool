@@ -8,6 +8,8 @@ from .association import species_agroforestry_association
 from .user import User
 from .parameters import Parameter
 from .recommendations import Recommendation
+from .audit_log import AuditLog
+
 
 
 __all__ = [
@@ -21,4 +23,5 @@ __all__ = [
     "User",
     "Parameter",
     "Recommendation",
+    "AuditLog",
 ]
