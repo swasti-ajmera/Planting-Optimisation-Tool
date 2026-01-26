@@ -135,17 +135,31 @@ async def test_officer_user(async_session: AsyncSession) -> User:
 @pytest.fixture(scope="function")
 async def setup_soil_texture(async_session: AsyncSession):
     """Ensures SoilTexture records exist with known IDs for tests."""
-    textures = [
-        SoilTexture(id=1, name="Test Loam"),
-        SoilTexture(id=2, name="Clay"),
-        SoilTexture(id=4, name="Sandy"),
+    from sqlalchemy.future import select
+
+    textures_data = [
+        {"id": 1, "name": "Test Loam"},
+        {"id": 2, "name": "Test Clay"},
+        {"id": 4, "name": "Test Sandy"},
     ]
-    for texture in textures:
-        merged_texture = await async_session.merge(texture)
-        async_session.add(merged_texture)
+
+    created_textures = []
+    for texture_data in textures_data:
+        # Check if it already exists
+        result = await async_session.execute(
+            select(SoilTexture).where(SoilTexture.id == texture_data["id"])
+        )
+        existing = result.scalar_one_or_none()
+
+        if existing:
+            created_textures.append(existing)
+        else:
+            new_texture = SoilTexture(**texture_data)
+            async_session.add(new_texture)
+            created_textures.append(new_texture)
 
     await async_session.flush()
-    return textures
+    return created_textures
 
 
 # Authorization Header Fixtures
