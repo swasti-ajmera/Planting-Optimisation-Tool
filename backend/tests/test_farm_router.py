@@ -3,7 +3,7 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.farm import Farm
 from src.models.user import User
-from src.domains.authentication import get_password_hash, Role
+from src.services.authentication import get_password_hash, Role
 from src.dependencies import create_access_token
 
 

@@ -17,7 +17,7 @@ from sqlalchemy.future import select
 from typing import List
 
 from src.database import get_db_session
-from src.domains.authentication import (
+from src.services.authentication import (
     require_role,
     get_password_hash,
     log_audit_event,

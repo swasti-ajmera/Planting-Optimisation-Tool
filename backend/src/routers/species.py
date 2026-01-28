@@ -6,9 +6,8 @@ from src.database import get_db_session
 from src.models.soil_texture import SoilTexture
 from src.models.agroforestry_type import AgroforestryType
 from src.schemas.species import SpeciesCreate
-from src import schemas
-from src.schemas.user import Role
-from src.domains.authentication import require_role
+from src.schemas.user import Role, UserRead
+from src.services.authentication import require_role
 from src.models.species import Species
 
 router = APIRouter(prefix="/species", tags=["Species"])
@@ -18,7 +17,7 @@ router = APIRouter(prefix="/species", tags=["Species"])
 async def create_species(
     payload: SpeciesCreate,
     db: AsyncSession = Depends(get_db_session),
-    current_user: schemas.user.UserRead = Depends(require_role(Role.SUPERVISOR)),
+    current_user: UserRead = Depends(require_role(Role.SUPERVISOR)),
 ):
     """
     Creates a new species with characteristics and parameters.

@@ -34,15 +34,13 @@ app = FastAPI(
 )
 
 app.include_router(auth.router)
-app.include_router(user.router)
+app.include_router(user.router)  # included user router
 app.include_router(species.router)
 app.include_router(farm.router)
 app.include_router(recommendation.router)
 app.include_router(soil_texture.router)
 app.include_router(environmental_profile.router)
 app.include_router(sapling_estimation.router)
-# Not created yet
-# app.include_router(user.router)
 
 
 @app.middleware("http")
@@ -60,4 +58,4 @@ async def add_process_time_header(request: Request, call_next):
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the Planting Optimisation Tool API"}
+    return {"Planting Optimisation": "Tool"}

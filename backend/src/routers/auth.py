@@ -14,22 +14,21 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from src import schemas
 from src.database import get_db_session
 from src.dependencies import create_access_token  # Use the timezone-aware version
-from src.domains.authentication import (
+from src.services.authentication import (
     authenticate_user,
     get_current_user,
     get_password_hash,
     require_role,
 )
 from src.models import User
-from src.schemas.user import Role
+from src.schemas.user import Role, Token, UserRead, UserCreate
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@router.post("/token", response_model=schemas.user.Token)
+@router.post("/token", response_model=Token)
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db_session),
@@ -76,10 +75,8 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.post("/register", response_model=schemas.user.UserRead)
-async def register_user(
-    user: schemas.user.UserCreate, db: AsyncSession = Depends(get_db_session)
-):
+@router.post("/register", response_model=UserRead)
+async def register_user(user: UserCreate, db: AsyncSession = Depends(get_db_session)):
     """
     Register a new user account.
 
@@ -137,7 +134,7 @@ async def register_user(
     return db_user
 
 
-@router.get("/users/me", response_model=schemas.user.UserRead)
+@router.get("/users/me", response_model=UserRead)
 async def read_users_me(current_user: User = Depends(get_current_user)):
     """
     Get the currently authenticated user's information.

@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import get_db_session
-from src import schemas
-from src.schemas.user import Role
-from src.domains.authentication import require_role
+from src.schemas.user import Role, UserRead
+from src.services.authentication import require_role
 from src.services.environmental_profile import EnvironmentalProfileService
 from src.schemas.environmental_profile import FarmProfileResponse
 
@@ -18,7 +17,7 @@ router = APIRouter(prefix="/profile", tags=["Environmental Profile"])
 async def get_farm_profile(
     farm_id: int,
     db: AsyncSession = Depends(get_db_session),
-    current_user: schemas.user.UserRead = Depends(require_role(Role.OFFICER)),
+    current_user: UserRead = Depends(require_role(Role.OFFICER)),
 ):
     """
     - Fetch environmental data from Google Earth Engine to build environmental profile for farm.

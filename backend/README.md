@@ -40,7 +40,113 @@ Revisions are stored in alembic/versions and are timestamped with a revision mes
 
 #### API
 
-#### 
+The API is built with FastAPI and provides RESTful endpoints for the application.
+
+#### Authentication & Authorization
+
+The application uses JWT (JSON Web Token) based authentication with role-based access control (RBAC).
+
+**Authentication Flow:**
+
+1. User logs in with email and password via `/token` endpoint
+2. Password is verified against bcrypt hash in database
+3. JWT access token is returned for subsequent requests
+4. Token is sent in `Authorization: Bearer <token>` header
+
+**User Roles (Hierarchical):**
+
+- `officer` (level 1): Basic user permissions
+- `supervisor` (level 2): Can view/manage users and resources
+- `admin` (level 3): Full system access
+
+Higher roles inherit all permissions of lower roles.
+
+**Security Features:**
+
+- Passwords hashed with bcrypt (never stored in plain text)
+- JWT tokens for stateless authentication
+- Role-based permission checks via `require_role()` dependency
+- Audit logging for security events (login, user modifications, etc.)
+
+**User Registration:**
+
+To register a new user, send a POST request to `/auth/register`:
+
+```json
+{
+  "email": "user@example.com",
+  "name": "John Doe",
+  "password": "securepassword123",
+  "role": "officer"
+}
+```
+
+- `email`: Valid email address (required, must be unique)
+- `name`: User's full name (required)
+- `password`: Password with minimum 8 characters (required)
+- `role`: One of `officer`, `supervisor`, or `admin` (optional, defaults to `officer`)
+
+Response returns the created user (without password):
+
+```json
+{
+  "id": 1,
+  "email": "user@example.com",
+  "name": "John Doe",
+  "role": "officer"
+}
+```
+
+**Login:**
+
+To obtain an access token, send a POST request to `/auth/token` with form data:
+
+```text
+username=user@example.com&password=securepassword123
+```
+
+Response:
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "bearer"
+}
+```
+
+Use the token in subsequent requests: `Authorization: Bearer <access_token>`
+
+**Role-Based Permission Checks:**
+
+The following endpoints have role-based access control implemented:
+
+| Endpoint | Method | Required Role | Description |
+| :--- | :--- | :--- | :--- |
+| `/users/` | GET | SUPERVISOR | List all users |
+| `/users/{user_id}` | GET | SUPERVISOR | Get user by ID |
+| `/users/{user_id}` | PUT | ADMIN | Update user information |
+| `/users/{user_id}` | DELETE | ADMIN | Delete user account |
+| `/farms/` | POST | SUPERVISOR | Create new farm |
+| `/farms/{farm_id}` | GET | OFFICER | Read farm by ID |
+| `/species/` | POST | SUPERVISOR | Create new species |
+| `/environmental-profile/` | POST | OFFICER | Get environmental profile |
+| `/sapling-estimation/` | POST | OFFICER | Calculate sapling estimation |
+| `/recommendations/` | POST | OFFICER | Generate recommendations |
+| `/recommendations/{farm_id}` | GET | OFFICER | Get farm recommendations |
+
+Notes:
+
+- Due to hierarchical permissions, higher roles can access lower-level endpoints
+- ADMIN can access SUPERVISOR and OFFICER endpoints
+- SUPERVISOR can access OFFICER endpoints
+- Protected endpoints return `403 Forbidden` if the user lacks required permissions
+
+**Key Files:**
+
+- [src/services/authentication.py](src/services/authentication.py): Password hashing, JWT validation, role checking
+- [src/models/user.py](src/models/user.py:1): User model with role field
+- [src/models/audit_log.py](src/models/audit_log.py:1): Audit log model for security events
+- [src/routers/auth.py](src/routers/auth.py:1): Login and authentication endpoints
 
 
 

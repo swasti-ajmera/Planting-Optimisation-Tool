@@ -9,7 +9,7 @@ from httpx import AsyncClient, ASGITransport
 # --- Application Imports ---
 from src.config import Settings
 from src.dependencies import create_access_token
-from src.domains.authentication import get_password_hash, Role
+from src.services.authentication import get_password_hash, Role
 from src.models.user import User
 from src.models.soil_texture import SoilTexture
 from src.main import app

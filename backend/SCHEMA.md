@@ -97,6 +97,7 @@
 | `name` | `String` | No | No |  |
 | `email` | `String` | No | No |  |
 | `hashed_password` | `String` | No | No |  |
+| `role` | `String` | No | No |  |
 ## TABLE: `recommendations`
 
 | Column Name | SQL Type | Nullable | Primary Key | Foreign Key |
@@ -108,3 +109,13 @@
 | `score_mcda` | `Float` | No | No |  |
 | `key_reasons` | `ARRAY` | No | No |  |
 | `created_at` | `DateTime` | No | No |  |
+
+## TABLE: `audit_logs`
+
+| Column Name | SQL Type | Nullable | Primary Key | Foreign Key |
+| :--- | :--- | :--- | :--- | :--- |
+| `id` | `Integer` | No | Yes |  |
+| `user_id` | `Integer` | Yes | No | id |
+| `event_type` | `String` | Yes | No |  |
+| `details` | `String` | Yes | No |  |
+| `timestamp` | `DateTime` | Yes | No |  |

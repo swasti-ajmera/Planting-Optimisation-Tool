@@ -37,7 +37,7 @@ class AuditLog(Base):
         - "password_change": User password changed
 
     Usage Example:
-        from src.domains.authentication import log_audit_event
+        from src.services.authentication import log_audit_event
 
         await log_audit_event(
             db=db,
