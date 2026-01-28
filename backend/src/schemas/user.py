@@ -1,5 +1,19 @@
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from typing import Optional
+import enum
+
+
+# User role definitions
+# Roles define permission levels in the system with a hierarchical structure:
+# - OFFICER (level 1): Basic user with limited permissions
+# - SUPERVISOR (level 2): Can view and manage users and resources
+# - ADMIN (level 3): Full system access, can create/update/delete all resources
+class Role(str, enum.Enum):
+    """Enumeration of user roles with hierarchical permissions."""
+
+    OFFICER = "officer"
+    SUPERVISOR = "supervisor"
+    ADMIN = "admin"
 
 
 # Base model for validation
