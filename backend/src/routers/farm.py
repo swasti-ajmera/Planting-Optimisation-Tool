@@ -3,7 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.schemas.farm import FarmCreate, FarmRead
 from src import schemas
-from src.domains.authentication import Role, require_role
+from src.schemas.user import Role
+from src.domains.authentication import require_role
 from src.database import get_db_session
 
 from src.services import farm as farm_service
@@ -27,9 +28,8 @@ async def create_farm_endpoint(
     db: AsyncSession = Depends(get_db_session),
 ):
     """
-    Handles the POST request to create a new farm record.
-
-    Requires: Authentication (via CurrentActiveUser), and validated Farm data (FarmCreate).
+    Creates a new farm record with validated data.
+    Requires SUPERVISOR role or higher.
     """
 
     # Pass validated Pydantic data, secure user ID, AND THE DB SESSION to the service layer
@@ -49,7 +49,8 @@ async def read_farm_endpoint(
     current_user: schemas.user.UserRead = Depends(require_role(Role.OFFICER)),
 ):
     """
-    Retrieves one or many farms by ID, ensuring the requesting user is the owner.
+    Retrieves a farm by ID, verifying ownership.
+    Requires OFFICER role or higher.
     """
     farms = await get_farm_by_id(db, farm_ids=[farm_id], user_id=current_user.id)
 

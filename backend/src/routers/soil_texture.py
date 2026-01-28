@@ -4,7 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.schemas.soil_texture import SoilTextureRead
 from src import schemas
-from src.domains.authentication import Role, require_role
+from src.schemas.user import Role
+from src.domains.authentication import require_role
 from src.services.soil_texture import get_all_textures  # Import the service function
 from src.database import get_db_session  # Import the database dependency
 
@@ -25,7 +26,8 @@ async def read_soil_textures(
     current_user: schemas.user.UserRead = Depends(require_role(Role.OFFICER)),
 ):
     """
-    Returns a list of all soil texture types used for foreign key lookups.
+    Returns all available soil texture types.
+    Requires OFFICER role or higher.
     """
     # Call the service layer function
     db_textures = await get_all_textures(db)

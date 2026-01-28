@@ -4,10 +4,11 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import get_db_session
 from src.models.soil_texture import SoilTexture
-from src.models.user import User
 from src.models.agroforestry_type import AgroforestryType
 from src.schemas.species import SpeciesCreate
-from src.dependencies import CurrentActiveUser
+from src import schemas
+from src.schemas.user import Role
+from src.domains.authentication import require_role
 from src.models.species import Species
 
 router = APIRouter(prefix="/species", tags=["Species"])
@@ -17,8 +18,12 @@ router = APIRouter(prefix="/species", tags=["Species"])
 async def create_species(
     payload: SpeciesCreate,
     db: AsyncSession = Depends(get_db_session),
-    current_user: User = CurrentActiveUser,
+    current_user: schemas.user.UserRead = Depends(require_role(Role.SUPERVISOR)),
 ):
+    """
+    Creates a new species with characteristics and parameters.
+    Requires SUPERVISOR role or higher.
+    """
     # Instantiate the new_species object first
     new_species = Species(
         name=payload.name,
