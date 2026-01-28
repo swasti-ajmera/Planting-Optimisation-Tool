@@ -15,7 +15,7 @@ async def test_farm_and_boundary_link(
 
     # Create a test user with SUPERVISOR role and auth headers
     test_user = User(
-        name="Test User",
+        name="Test User farm",
         email="testuser@test.com",
         hashed_password=get_password_hash("testpassword"),
         role=Role.SUPERVISOR.value,  # Changed to SUPERVISOR

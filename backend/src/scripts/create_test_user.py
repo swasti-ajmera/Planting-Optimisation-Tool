@@ -18,10 +18,16 @@ async def create_user():
             print(f"User '{email}' already exists.")
             return
 
+        # Create test user with ADMIN role
+        # Admin role grants full system access including:
+        # - Create/read/update/delete all resources
+        # - Manage users with any role (officer, supervisor, admin)
+        # - Can view and create farms regardless of ownership
         user = User(
             name="Test User",
             email=email,
             hashed_password="password123",
+            role="admin",  # ADMIN role for full access during testing
         )
 
         session.add(user)

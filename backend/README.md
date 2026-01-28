@@ -147,6 +147,51 @@ The application uses JWT (JSON Web Token) based authentication with role-based a
 
 Higher roles inherit all permissions of lower roles.
 
+**Detailed Role Permissions:**
+
+**OFFICER (Level 1) - Basic User:**
+
+Can:
+
+- Create and view their own farms (ownership-based access control)
+- Generate environmental profiles for farm locations
+- Calculate sapling estimations
+- Generate and view planting recommendations
+- Create new user accounts (any role - requires authentication)
+- View their own profile information
+
+Cannot:
+
+- List or view other users' information
+- Update or delete any user accounts
+- Create new species in the system
+- Access farms owned by other users
+
+**SUPERVISOR (Level 2) - User Manager:**
+
+Can (in addition to all Officer permissions):
+
+- List all users in the system
+- View detailed information of any user
+- Create new species entries
+
+Cannot:
+
+- Update user information (including passwords and roles)
+- Delete user accounts
+
+**ADMIN (Level 3) - Full Administrator:**
+
+Can (in addition to all Supervisor and Officer permissions):
+
+- Update any user's information (email, name, password, role)
+- Delete user accounts
+- Full unrestricted access to all system endpoints
+
+Cannot:
+
+- Nothing - administrators have complete system access
+
 **Security Features:**
 
 - Passwords hashed with bcrypt (never stored in plain text)
@@ -212,8 +257,8 @@ The following endpoints have role-based access control implemented:
 | `/users/{user_id}` | GET | SUPERVISOR | Get user by ID |
 | `/users/{user_id}` | PUT | ADMIN | Update user information |
 | `/users/{user_id}` | DELETE | ADMIN | Delete user account |
-| `/farms/` | POST | SUPERVISOR | Create new farm |
-| `/farms/{farm_id}` | GET | OFFICER | Read farm by ID |
+| `/farms/` | POST | OFFICER | Create new farm |
+| `/farms/{farm_id}` | GET | OFFICER | Read farm by ID (ownership verified) |
 | `/species/` | POST | SUPERVISOR | Create new species |
 | `/environmental-profile/` | POST | OFFICER | Get environmental profile |
 | `/sapling-estimation/` | POST | OFFICER | Calculate sapling estimation |
@@ -238,6 +283,15 @@ Notes:
 The [pytest](https://docs.pytest.org/en/stable/) v2 framework handles all of the backend test suite, current tests are in `tests/` and are mainly focused on database operations and integrity checks.
 
 Directly running `backend $ uv run pytest` will <u>**not**</u> work, because the `just test` target replicates the current live database to a standalone test database and then performs the tests on the test database to ensure data integrity of the live database.
+
+**Authentication Test Coverage:**
+
+- [tests/test_auth.py](tests/test_auth.py): User registration, login, duplicate email prevention, password validation (min 8 chars), token authentication
+- [tests/test_roles.py](tests/test_roles.py): Role-based permissions (Officer/Supervisor/Admin), hierarchical access control, user CRUD operations by role
+
+**Test User Creation:**
+
+The [src/scripts/create_test_user.py](src/scripts/create_test_user.py) script creates a test user with ADMIN role for development and testing. The script was updated to include the `role` field (set to "admin") to provide full system access for testing all endpoints. Test credentials: `testuser123@test.com` / `password123`.
 
 ### CI (Continuous integration testing)
 `Planting-Optimisation-Tool/.github/workflows/backend-ci.yml` is the GitHub actions workflow file that runs on a new pull request.

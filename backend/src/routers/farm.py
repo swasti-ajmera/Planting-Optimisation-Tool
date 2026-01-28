@@ -22,13 +22,13 @@ async def create_farm_endpoint(
     # Validates the data against the pydantic model
     farm_data: FarmCreate,
     # Inject the authenticated user
-    current_user: UserRead = Depends(require_role(Role.SUPERVISOR)),
+    current_user: UserRead = Depends(require_role(Role.OFFICER)),
     # Inject the real database session
     db: AsyncSession = Depends(get_db_session),
 ):
     """
     Creates a new farm record with validated data.
-    Requires SUPERVISOR role or higher.
+    Requires OFFICER role or higher.
     """
 
     # Pass validated Pydantic data, secure user ID, AND THE DB SESSION to the service layer
