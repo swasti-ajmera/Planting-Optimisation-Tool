@@ -109,13 +109,12 @@
 | `score_mcda` | `Float` | No | No |  |
 | `key_reasons` | `ARRAY` | No | No |  |
 | `created_at` | `DateTime` | No | No |  |
-
 ## TABLE: `audit_logs`
 
 | Column Name | SQL Type | Nullable | Primary Key | Foreign Key |
 | :--- | :--- | :--- | :--- | :--- |
 | `id` | `Integer` | No | Yes |  |
-| `user_id` | `Integer` | Yes | No | id |
-| `event_type` | `String` | Yes | No |  |
-| `details` | `String` | Yes | No |  |
-| `timestamp` | `DateTime` | Yes | No |  |
+| `user_id` | `Integer` | No | No | id |
+| `event_type` | `String` | No | No |  |
+| `details` | `String` | No | No |  |
+| `timestamp` | `DateTime` | No | No |  |

@@ -5,10 +5,10 @@ SQLAlchemy model for tracking security-relevant events and user actions.
 Provides an immutable audit trail for compliance, security monitoring, and forensics.
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey, DateTime
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 from src.database import Base
-import datetime
+from datetime import datetime, timezone
 
 
 class AuditLog(Base):
@@ -70,19 +70,21 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
 
     # Primary key
-    id = Column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
 
     # Who performed the action
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
     # What type of event occurred (indexed for fast filtering)
-    event_type = Column(String, index=True)
+    event_type: Mapped[str] = mapped_column(index=True)
 
     # Detailed description of the event
-    details = Column(String)
+    details: Mapped[str] = mapped_column()
 
     # When the event occurred (UTC, auto-set on creation)
-    timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+    timestamp: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
 
     # Relationship to User model
     user = relationship("User")

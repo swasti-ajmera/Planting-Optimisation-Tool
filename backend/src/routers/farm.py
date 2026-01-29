@@ -51,7 +51,9 @@ async def read_farm_endpoint(
     Retrieves a farm by ID, verifying ownership.
     Requires OFFICER role or higher.
     """
-    farms = await get_farm_by_id(db, farm_ids=[farm_id], user_id=current_user.id)
+    farms = await get_farm_by_id(
+        db, farm_ids=[farm_id], user_id=current_user.id, user_role=current_user.role
+    )
 
     if not farms:
         raise HTTPException(

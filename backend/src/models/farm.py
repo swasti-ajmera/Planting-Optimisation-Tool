@@ -53,7 +53,9 @@ class Farm(Base):
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE")
     )
-    external_id: Mapped[int | None] = mapped_column(Integer, unique=True, nullable=True)
+    external_id: Mapped[int | None] = mapped_column(
+        Integer, unique=True, nullable=True, default=None
+    )
 
     # Relationships
     # -------------

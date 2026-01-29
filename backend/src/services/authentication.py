@@ -14,11 +14,12 @@ Key Components:
 
 from typing import Optional
 import jwt
+import bcrypt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+
 from src.config import settings
 from src.database import get_db_session
 from src.dependencies import get_current_active_user
@@ -26,10 +27,6 @@ from src.models.audit_log import AuditLog
 from src.models.user import User
 from src.schemas.user import TokenData, UserRead, Role
 
-
-# Password hashing context using bcrypt algorithm
-# bcrypt is a secure password hashing function designed to be slow, making brute-force attacks difficult
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # OAuth2 password bearer scheme for token-based authentication
 # This extracts the token from the Authorization header (format: "Bearer <token>")
@@ -50,7 +47,10 @@ def get_password_hash(password: str) -> str:
         This function should be used when creating or updating user passwords.
         Never store plain text passwords in the database.
     """
-    return pwd_context.hash(password)
+    pwd_bytes = password.encode("utf-8")
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(pwd_bytes, salt)
+    return hashed_password.decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -68,12 +68,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         Used during login to authenticate users by comparing their input
         password with the stored hash.
     """
-    return pwd_context.verify(plain_password, hashed_password)
-
-
-# NOTE: create_access_token has been moved to src/dependencies.py
-# Import it from there instead of using a duplicate implementation.
-# The version in dependencies.py uses timezone-aware UTC datetime which is more correct.
+    return bcrypt.checkpw(
+        plain_password.encode("utf-8"), hashed_password.encode("utf-8")
+    )
 
 
 async def authenticate_user(

@@ -25,7 +25,9 @@ async def get_farm_recs(
     """
     # Fetch the farm and verify ownership
     # Pass current_user (which is a UserRead schema) to the service
-    farms = await get_farm_by_id(db, [farm_id], current_user.id)
+    farms = await get_farm_by_id(
+        db, [farm_id], current_user.id, user_role=current_user.role
+    )
 
     if not farms:
         raise HTTPException(status_code=404, detail="Farm not found or access denied")
@@ -50,7 +52,9 @@ async def get_batch_recs(
     Retrieves species recommendations for multiple farms in batch.
     Requires OFFICER role or higher.
     """
-    farms = await get_farm_by_id(db, farm_ids, current_user.id)
+    farms = await get_farm_by_id(
+        db, farm_ids, current_user.id, user_role=current_user.role
+    )
 
     if not farms:
         raise HTTPException(status_code=404, detail="No valid farms found")

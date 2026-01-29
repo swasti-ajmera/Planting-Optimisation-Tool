@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr, ConfigDict
+from pydantic import BaseModel, Field, EmailStr, ConfigDict, field_validator
 from typing import Optional
 
 from src.schemas.constants import Role
@@ -25,10 +25,16 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str = Field(
         ...,
-        min_length=8,
         description="The user's password (must be hashed before storage).",
     )
     role: str = "officer"
+
+    @field_validator("password")
+    @classmethod
+    def password_min_length(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters long")
+        return v
 
 
 # This is what is returned after registration or when fetching the current user.
